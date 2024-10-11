@@ -8,7 +8,6 @@ from RAGHelper import formatDocuments
 from langchain.retrievers import EnsembleRetriever
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_experimental.text_splitter import SemanticChunker
-# from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 from get_embeddings import get_embedding_function
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.runnable import RunnablePassthrough

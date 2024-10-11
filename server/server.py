@@ -1,7 +1,13 @@
 from fastapi.responses import FileResponse
 from RAGHelper_cloud import RAGHelperCloud
 from RAGHelper_local import RAGHelperLocal
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
+
+from db import User, create_db_and_tables
+from schemas import UserCreate, UserRead, UserUpdate
+from users import auth_backend, current_active_user, fastapi_users
+from contextlib import asynccontextmanager
+
 from pydantic import BaseModel
 import logging
 import os
@@ -9,10 +15,46 @@ from dotenv import load_dotenv
 import uvicorn
 from typing import List, Optional, Dict, Any
 
+# add user endpoints
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Not needed if you setup a migration system like Alembic
+    await create_db_and_tables()
+    yield
+
 # Initialize FastAPI application
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+app.include_router(
+    fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"]
+)
+app.include_router(
+    fastapi_users.get_register_router(UserRead, UserCreate),
+    prefix="/auth",
+    tags=["auth"],
+)
+app.include_router(
+    fastapi_users.get_reset_password_router(),
+    prefix="/auth",
+    tags=["auth"],
+)
+app.include_router(
+    fastapi_users.get_verify_router(UserRead),
+    prefix="/auth",
+    tags=["auth"],
+)
+app.include_router(
+    fastapi_users.get_users_router(UserRead, UserUpdate),
+    prefix="/users",
+    tags=["users"],
+)
+
+
+@app.get("/authenticated-route")
+async def authenticated_route(user: User = Depends(current_active_user)):
+    return {"message": f"Hello {user.email}!"}
 
 # Disable parallelism in tokenizers to avoid warnings
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -33,8 +75,8 @@ class Document(BaseModel):
     filename: str
 
 
-@app.post("/add_local_document")
-async def add_document(doc: Document):
+@app.post("/add_local_document",tags=['RAG'])
+async def add_document(doc: Document,user: User = Depends(current_active_user)):
     """
     Add a document to the RAG helper.
 
@@ -81,8 +123,8 @@ class ChatResponse(BaseModel):
     question: str
 
 
-@app.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
+@app.post("/chat", response_model=ChatResponse,tags=['RAG'])
+async def chat(request: ChatRequest,user: User = Depends(current_active_user)):
     """
     Handle chat interactions with the RAG system.
 
@@ -149,8 +191,8 @@ class DocumentsResponse(BaseModel):
     files: List[str]
 
 
-@app.get("/get_documents", response_model=DocumentsResponse)
-async def get_documents():
+@app.get("/get_documents", response_model=DocumentsResponse,tags=['RAG'])
+async def get_documents(user: User = Depends(current_active_user)):
     """
     Retrieve a list of documents from the data directory.
 
@@ -174,8 +216,8 @@ class DocumentRequest(BaseModel):
     filename: str
 
 
-@app.post("/get_document")
-async def get_document(doc_request: DocumentRequest):
+@app.post("/get_document",tags=['RAG'])
+async def get_document(doc_request: DocumentRequest,user: User = Depends(current_active_user)):
     """
     Retrieve a specific document from the data directory.
 
