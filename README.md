@@ -27,3 +27,8 @@ specify embedding model
 embedding_model=jina-embeddings-v2-base-zh
 embedding_provider=jina
 ```
+
+add jwt key
+```bash
+jwt_key=your_key
+```
