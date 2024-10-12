@@ -13,6 +13,7 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from dotenv import load_dotenv
 from db import User, get_user_db
 load_dotenv()
+
 SECRET = os.getenv("jwt_key")
 
 
