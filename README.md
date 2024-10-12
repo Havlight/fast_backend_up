@@ -9,7 +9,7 @@ Also this project will only support postgres
 ## Server
 
 ```bash
-git clone https://github.com/UnderstandLingBV/RAGMeUp.git
+git clone https://github.com/Havlight/fast_backend_up.git
 cd server
 pip install -r requirements.txt
 pip install --upgrade pip    
