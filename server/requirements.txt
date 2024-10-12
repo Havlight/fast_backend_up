@@ -12,7 +12,7 @@ sentence-transformers==2.6.1
 transformers==4.43.1
 bitsandbytes==0.42.0
 torch==2.3.1
-fastapi
+fastapi[standard]
 uvicorn
 fastapi-users[sqlalchemy]
 aiosqlite
