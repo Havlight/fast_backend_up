@@ -15,7 +15,7 @@ pip install -r requirements.txt
 pip install --upgrade pip    
 pip install "psycopg[binary,pool]"
 ```
-Then run the server using `python server.py` from the server subfolder.
+Then run the server using `python main.py` from the server subfolder.
 ## configuration
 you can add your api key in `.env`
 ```bash
