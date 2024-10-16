@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    build: ./postgres
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: langchain
+      POSTGRES_PASSWORD: langchain
+      POSTGRES_DB: langchain
+    ports:
+      - "6024:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: ./server
+    container_name: fastapi_container
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://langchain:langchain@db/langchain
+    ports:
+      - "80:80"
+    volumes:
+      - ./server:/app
+
+volumes:
+  postgres_data:

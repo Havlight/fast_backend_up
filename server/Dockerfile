@@ -1,28 +1,20 @@
 FROM python:3.11.5
 
-RUN apt-get -y update && apt-get -y install build-essential \
-    libpq-dev libssl-dev
+# Set the working directory in the container
+WORKDIR /app
 
-RUN mkdir /ragmeup
-RUN mkdir /data
-WORKDIR /ragmeup
+# Copy the requirements file into the container
+COPY requirements.txt .
 
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
-RUN pip3 install gunicorn
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 5000
-
+# Copy the rest of the working directory contents into the container
 COPY . .
 
-ARG UNAME=interfaceuser
-ARG UID=101
-ARG GID=101
+# Make port 80 available to the world outside this container
+EXPOSE 80
 
-RUN groupadd -g $GID -o $UNAME
-RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
+# Run main.py when the container launches
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
 
-RUN chown -R $UID:$GID /ragmeup
-RUN chown -R $UID:$GID /data
-
-USER $UNAME
