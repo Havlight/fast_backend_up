@@ -32,3 +32,13 @@ add jwt key
 ```bash
 jwt_key=your_key
 ```
+
+use docker
+```bash
+# seperate docker
+#vector_store_uri='postgresql+psycopg://langchain:langchain@localhost:6024/langchain'
+#vector_store_sparse_uri='postgresql://langchain:langchain@localhost:6024/langchain'
+# docker-compose
+vector_store_uri='postgresql+psycopg://langchain:langchain@db:5432/langchain'
+vector_store_sparse_uri='postgresql://langchain:langchain@db:5432/langchain'
+```
